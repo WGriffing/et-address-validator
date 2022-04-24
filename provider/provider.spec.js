@@ -20,12 +20,19 @@ describe("Provider", () => {
   it("should throw an error if abstract method is not implemented in subclass", () => {
     const badClass = new BadClass();
 
+    const notImplementedResponse = (funcName) =>
+      `Abstract method "${funcName}" not implemented in subclass.`;
+
     expect(() => badClass.rateLimitExceededResponse()).to.throw(
-      'Abstract method "rateLimitExceededResponse" not implemented in subclass.'
+      notImplementedResponse("rateLimitExceededResponse")
+    );
+
+    expect(() => badClass.rateLimitMaxLength()).to.throw(
+      notImplementedResponse("rateLimitMaxLength")
     );
 
     expect(() => badClass.lookupAddress()).to.throw(
-      'Abstract method "lookupAddress" not implemented in subclass.'
+      notImplementedResponse("lookupAddress")
     );
   });
 });

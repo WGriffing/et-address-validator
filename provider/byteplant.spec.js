@@ -51,7 +51,7 @@ describe("Byteplant", () => {
       "Anytown",
       "12345"
     );
-    expect(data).to.equal(ByteplantResponse.apiKeyInvalid);
+    expect(data?.status).to.equal(ByteplantResponse.apiKeyInvalid);
   });
 
   it("should return an address when used with valid API key and valid inputs", async () => {
@@ -78,6 +78,23 @@ describe("Byteplant", () => {
     );
 
     expect(address).to.equal("Invalid Address");
+  });
+
+  it("should wait to retry if rate limit is exceeded", async () => {
+    sinon.restore(); // remove beforeEach lookupAddress fake
+    const lookupStub = sinon.stub();
+    lookupStub.onCall(0).returns({
+      status: byteplant.rateLimitExceededResponse(),
+      ratelimit_seconds: 0.1,
+    });
+    lookupStub.returns("Invalid Address");
+
+    sinon.replace(byteplant, "lookupAddress", lookupStub);
+
+    const line = "dummy,dummy,dummy";
+    const output = await byteplant.processLine(line);
+
+    expect(output).to.equal(`${line} -> Invalid Address`);
   });
 
   afterEach(() => {

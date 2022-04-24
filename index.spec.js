@@ -11,7 +11,6 @@ const mySpawn = (args, input) => {
     );
 
     const data = output.join("\n").trim();
-    //console.log(`data: ${data}`);
     resolve(data);
   });
 };

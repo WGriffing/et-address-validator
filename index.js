@@ -2,6 +2,7 @@
 const readline = require("readline");
 const fs = require("fs");
 const yargs = require("yargs");
+const log = require("loglevel");
 const { Byteplant } = require("./provider/byteplant");
 
 const run = () => {
@@ -25,6 +26,13 @@ const run = () => {
         type: "string",
         choices: ["byteplant"],
         default: "byteplant",
+      },
+      "log-level": {
+        alias: "l",
+        description: "Log level",
+        type: "string",
+        choices: ["trace", "debug", "info", "warn", "error"],
+        default: "warn",
       },
       "api-key-env-var": {
         alias: "k",
@@ -71,6 +79,8 @@ const run = () => {
       inputStream = process.stdin;
       break;
   }
+
+  log.setLevel(argv["log-level"]);
 
   const rl = readline.createInterface({
     input: inputStream,

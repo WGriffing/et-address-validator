@@ -1,6 +1,7 @@
 "use strict";
 const axios = require("axios");
 const { Provider } = require("./provider");
+const log = require("loglevel");
 
 const ByteplantResponse = {
   valid: "VALID",
@@ -23,10 +24,19 @@ class Byteplant extends Provider {
     return ByteplantResponse.rateLimitExceeded;
   }
 
+  rateLimitMaxLength() {
+    // byteplant API rate interval reset period maximum is 300 seconds
+    return 300;
+  }
+
   async lookupAddress(street, city, postalCode) {
     const data = await this.apiCall(street, city, postalCode);
 
-    const { status } = data;
+    const { status, ratelimit_remain, ratelimit_seconds } = data;
+
+    log.debug(
+      `----- ratelimit info | remain: ${ratelimit_remain} | seconds: ${ratelimit_seconds}`
+    );
 
     if (
       status === ByteplantResponse.valid ||
@@ -41,7 +51,7 @@ class Byteplant extends Provider {
         ByteplantResponse.restricted,
       ].includes(status)
     ) {
-      return status;
+      return { status, ratelimit_seconds };
     }
     return "Invalid Address";
   }
